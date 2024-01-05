@@ -1,0 +1,76 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+
+class Program
+{
+    static void Main()
+    {
+        string downloadsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+        Console.WriteLine("zadejte nazev souboru");
+        string fileName = Console.ReadLine();
+        string filePath = Path.Combine(downloadsPath, fileName);
+
+        Console.Write($"soubor bude vytvoren v adresari: {downloadsPath} s nazvem: {fileName}.txt");
+
+        List<Resource> resources = new List<Resource>();
+
+        while (true)
+        {
+            Console.WriteLine("\nzadej surovinu ('exit' pro ukonceni): ");
+            string resourceName = Console.ReadLine();
+
+            if (resourceName.ToLower() == "exit")
+                break;
+
+            Console.Write($"zadej mnozstvi {resourceName}: ");
+            decimal resourceCount = Convert.ToDecimal(Console.ReadLine());
+
+            resources.Add(new Resource { Name = resourceName, Count = resourceCount });
+        }
+
+        CalculateRatios(resources);
+
+        CreateAndWriteToFile(filePath, resources);
+
+        Console.WriteLine($"vysledek byl zapsan do souboru {fileName}.txt");
+    }
+
+    static void CreateAndWriteToFile(string filePath, List<Resource> resources)
+    {
+        using (StreamWriter writer = new StreamWriter(filePath))
+        {
+            foreach (var resource in resources)
+            {
+                writer.WriteLine($"{resource.Name} - {resource.Ratio}");
+            }
+        }
+    }
+
+    static void CalculateRatios(List<Resource> resources)
+    {
+        if (resources.Count > 0)
+        {
+            decimal firstResourceCount = resources[0].Count;
+
+            for (int i = 1; i < resources.Count; i++)
+            {
+                if (resources[i].Count != 0)
+                {
+                    resources[i].Ratio = firstResourceCount / resources[i].Count;
+                }
+                else
+                {
+                    Console.WriteLine($"numuzes delit nulou {resources[i].Name}.");
+                }
+            }
+        }
+    }
+}
+
+class Resource
+{
+    public string Name { get; set; }
+    public decimal Count { get; set; }
+    public decimal Ratio { get; set; }
+}
